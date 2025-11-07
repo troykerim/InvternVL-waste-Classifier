@@ -1,0 +1,52 @@
+# This file has been modified from Lora to Qlora
+model_name_or_path: /workspace/models/InternVL4B
+template: internvl
+trust_remote_code: true
+cache_dir: /workspace/.cache/huggingface
+
+stage: sft
+do_train: true
+
+finetuning_type: lora
+lora_target: "q_proj,k_proj,v_proj,o_proj,gate_proj,up_proj,down_proj"
+lora_rank: 8
+lora_alpha: 32
+lora_dropout: 0.05
+
+resize_vocab: false
+
+dataset: maica_internvl_sft
+dataset_dir: /workspace/data
+media_dir: /workspace/data/images
+packing: false
+
+# No quantization (plain LoRA)
+quantization_bit: 8                # Can set it to 4, null will make it Lora
+quantization_method: bitsandbytes  # null will make it Lora
+
+# Training hyperparameters 
+per_device_train_batch_size: 1
+gradient_accumulation_steps: 8 # 4
+learning_rate: 2e-4          # 1e-4
+num_train_epochs: 1
+lr_scheduler_type: cosine
+warmup_ratio: 0.05
+weight_decay: 0.0
+gradient_checkpointing: true
+cutoff_len: 1024
+fp16: true
+bf16: false
+dataloader_num_workers: 0
+
+freeze_vision_tower: false             # If set false will use more resources, if set true may stop loss (not good!)
+freeze_multi_modal_projector: false    # If set false will use more resources
+
+logging_steps: 1
+logging_first_step: true
+save_strategy: steps
+save_steps: 2
+save_total_limit: 2
+output_dir: /workspace/output/adapter
+overwrite_output_dir: true
+save_safetensors: true
+report_to: none
